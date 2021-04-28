@@ -317,7 +317,9 @@ class Palette:
             'Tetradic': [0, 2, 6, 8],
             'Square': [0, 3, 6, 9],
             'Split-complementary': [0, 5, 7],
-            'Double split-complementary': [0, 1, 5, 7, 11]
+            'Double split-complementary': [0, 1, 5, 7, 11],
+            'Clash': [0, 2, 8],
+            'Intermediate': [0, 2, 4, 6, 8, 10]
         }
 
         if (
@@ -621,7 +623,9 @@ class ColorPaletterUI:
             'Tetradic',
             'Square',
             'Split-complementary',
-            'Double split-complementary'
+            'Double split-complementary',
+            'Clash',
+            'Intermediate'
         ]
 
         # Create custom widget theme
