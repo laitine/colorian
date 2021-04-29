@@ -7,7 +7,7 @@ use in design projects.
 
 ## Get started:
 
-[Download Colorian app for Mac](https://github.com/laitine/colorian/tree/master/dist/Colorian.app)
+[Download Colorian app for Mac](https://github.com/laitine/colorian/releases/)
 
 1. Choose a color wheel from the top left corner according to your inteded use
 of colors (RYB for web, RGB for screens or CMYK for print).
