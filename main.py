@@ -21,6 +21,8 @@ def show_error(error_message):
 def resource_path(relative_path):
     """
     Fetch the absolute path to the resource. For both local and PyInstaller.
+
+    :param relative_path: str, the relative file path to transform.
     """
     base_path = getattr(sys, '_MEIPASS',
                         os.path.dirname(os.path.abspath(__file__)))
