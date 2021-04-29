@@ -1,577 +1,12 @@
 from datetime import datetime
-import random
 import tkinter as tk
 from tkinter import ttk
-from tkinter import messagebox
 
+from main import show_error
+from palette import Palette
 
-class Color:
 
-    def __init__(self, red, green, blue, name=None):
-        """
-        Creates a Color instance that represents a single RGB color. The
-        original color values and brightness are stored to allow referencing
-        when modifying the color values.
-
-        :param red: int, the amount of red on a scale 0-255.
-        :param green: int, the amount of green on a scale 0-255.
-        :param blue: int, the amount of blue on a scale 0-255.
-        :param name: str, the name of the color.
-        """
-
-        self.__red = red
-        self.__green = green
-        self.__blue = blue
-        self.__name = name
-
-        self.__original_red = red
-        self.__original_green = green
-        self.__original_blue = blue
-        self.__original_brightness = self.get_brightness()
-
-    def __str__(self):
-        """
-        Converts the Color instance to a string.
-
-        :return: str, the Color instance.
-        """
-
-        return f'{self.__name}: {self.hex()}'
-
-    def hex(self):
-        """
-        Converts a color from RGB to a HEX color code string.
-
-        :return: str, the color as hex color code.
-        """
-
-        return f'#{self.__red:02x}{self.__green:02x}{self.__blue:02x}'.upper()
-
-    def name(self):
-        """
-        Fetches the color's name.
-
-        :return: str, the name of the color.
-        """
-
-        return self.__name
-
-    def values(self):
-        """
-        Separates the RGB values into an array.
-
-        :return: array, the red, green and blue values in an array.
-        """
-
-        return [self.__red, self.__green, self.__blue]
-
-    def get_minmidmax(self):
-        """
-        Arranges the RGB integer values into order from low to high.
-
-        :return: tuple, the RGB values in ascending order.
-        """
-
-        rgb_array = self.values()
-        min_value = sorted(rgb_array)[0]
-        mid_value = sorted(rgb_array)[1]
-        max_value = sorted(rgb_array)[2]
-
-        minmidmax_rgb_values = (min_value, mid_value, max_value)
-
-        return minmidmax_rgb_values
-
-    def get_lightness(self):
-        """
-        Determines the lightness of the color as in ratio of white and black
-        of the color. Value 0 represents pure black and 1 pure white.
-
-        :return: float, the lightness of the color as value between 0-1.
-        """
-
-        rgb_minmidmax_values = self.get_minmidmax()
-        lowest_rgb_value = rgb_minmidmax_values[0]
-        highest_rgb_value = rgb_minmidmax_values[2]
-
-        return (lowest_rgb_value + highest_rgb_value) / 2 / 255
-
-    def get_brightness(self):
-        """
-        Calculates the relative luminance of the color.
-        https://en.wikipedia.org/wiki/Relative_luminance
-
-        :return: float, the brightness of the color.
-        """
-        return (
-            0.2126 * self.__red + 0.7152 * self.__green + 0.0722 * self.__blue
-        )
-
-    def clamp_rgb_value(self, rgb_value):
-        """
-        Clamps the RGB value to valid range 0-255. Converts the value to an int
-        if a float is provided.
-
-        :param rgb_value: float, the value to clamp.
-        :return: int, the RGB value in 0-255.
-        """
-
-        if (
-                not isinstance(rgb_value, float)
-                and not isinstance(rgb_value, int)
-        ):
-            show_error('Invalid RGB value to clamp received!')
-            return
-
-        if rgb_value < 0:
-            return 0
-        elif rgb_value > 255:
-            return 255
-        else:
-            return round(rgb_value)
-
-    def brightness(self, brightness_amount):
-        """
-        Modify the luminance of the color in relation to the colors original
-        luminance amount. Maintains the colors original hue.
-
-        :param brightness_amount: float, the amount of brightness 0.0-255.0
-        """
-
-        if (
-            not isinstance(brightness_amount, float)
-        ):
-            show_error('Invalid brightness value received!')
-            return
-
-        brightness_change = brightness_amount - self.__original_brightness
-
-        new_red_rgb_value = self.__original_red + brightness_change
-        new_green_rgb_value = self.__original_green + brightness_change
-        new_blue_rgb_value = self.__original_blue + brightness_change
-
-        self.__red = self.clamp_rgb_value(new_red_rgb_value)
-        self.__green = self.clamp_rgb_value(new_green_rgb_value)
-        self.__blue = self.clamp_rgb_value(new_blue_rgb_value)
-
-    def tint(self, tint_percentage):
-        """
-        Modifies the tint of the color as in adds white to it.
-
-        :param tint_percentage: int, the percentage of tinting to apply.
-        :return: Color, the tinted color.
-        """
-
-        if (
-                not isinstance(tint_percentage, int)
-                or 0 > tint_percentage > 100
-        ):
-            show_error('Invalid tint parameter received!')
-            return
-
-        tint_fraction = tint_percentage / 100
-        self.__red = self.clamp_rgb_value(self.__red + (255 - self.__red)
-                                          * tint_fraction)
-        self.__green = self.clamp_rgb_value(self.__green + (255 - self.__green)
-                                            * tint_fraction)
-        self.__blue = self.clamp_rgb_value(self.__blue + (255 - self.__blue)
-                                           * tint_fraction)
-
-        return self
-
-    def shade(self, shade_percentage):
-        """
-        Modifies the shade of the color as in adds black to it.
-
-        :param shade_percentage: int, the percentage of shading to apply.
-        :return: Color, the shaded color.
-        """
-
-        if (
-                not isinstance(shade_percentage, int)
-                or 0 > shade_percentage > 100
-        ):
-            show_error('Invalid shade parameter received!')
-            return
-
-        shade_fraction = shade_percentage / 100
-        self.__red = self.clamp_rgb_value(self.__red * (1 - shade_fraction))
-        self.__green = self.clamp_rgb_value(
-            self.__green * (1 - shade_fraction))
-        self.__blue = self.clamp_rgb_value(self.__blue * (1 - shade_fraction))
-
-        return self
-
-    def tone(self, tone_percentage):
-        """
-        Modifies the saturation aka tone of the color as in adds gray to it.
-
-        :param tone_percentage: int, the percentage  of shading to apply.
-        :return: Color, the toned color.
-        """
-
-        if (
-                not isinstance(tone_percentage, int)
-                or 0 > tone_percentage > 100
-        ):
-            show_error('Invalid tone parameter received!')
-            return
-
-        minmidmax_rgb_values = self.get_minmidmax()
-        gray_rgb_value = self.get_lightness() * 255
-
-        saturation_range = round(min(255 - gray_rgb_value, gray_rgb_value))
-        max_shift = min((255 - minmidmax_rgb_values[2]),
-                        minmidmax_rgb_values[0])
-        shift_amount = min(saturation_range / tone_percentage, max_shift)
-
-        mid_difference = gray_rgb_value - minmidmax_rgb_values[1]
-        max_difference = gray_rgb_value - minmidmax_rgb_values[2]
-        mid_ratio = mid_difference / max_difference
-
-        max_value = 0
-        toned_rgb_values = [0] * 3
-        rgb_values = self.values()
-        for idx, rgb_value in enumerate(rgb_values):
-            if rgb_value == minmidmax_rgb_values[0]:
-                toned_rgb_values[idx] = \
-                    self.clamp_rgb_value(
-                        minmidmax_rgb_values[0] - shift_amount)
-            elif rgb_value == minmidmax_rgb_values[2]:
-                toned_rgb_values[idx] = \
-                    self.clamp_rgb_value(
-                        minmidmax_rgb_values[2] + shift_amount)
-                max_value = rgb_values[idx]
-            elif rgb_value == minmidmax_rgb_values[1]:
-                toned_rgb_values[idx] = self.clamp_rgb_value(
-                    gray_rgb_value + (max_value - gray_rgb_value) * mid_ratio)
-
-        self.__red = toned_rgb_values[0]
-        self.__green = toned_rgb_values[1]
-        self.__blue = toned_rgb_values[2]
-
-        return self
-
-
-class Palette:
-
-    def __init__(self, color_wheel='RYB'):
-        """
-        Creates a Palette instance that represents a group of Color instances.
-        """
-
-        self.__RYB_COLORS = [
-            Color(254, 39, 18, 'Red'),
-            Color(252, 96, 10, 'Red-orange'),
-            Color(251, 153, 2, 'Orange'),
-            Color(252, 204, 26, 'Yellow-orange'),
-            Color(254, 254, 51, 'Yellow'),
-            Color(178, 215, 50, 'Yellow-green'),
-            Color(102, 176, 50, 'Green'),
-            Color(52, 124, 152, 'Blue-green'),
-            Color(2, 71, 254, 'Blue'),
-            Color(68, 36, 214, 'Blue-violet'),
-            Color(134, 1, 175, 'Violet'),
-            Color(194, 20, 96, 'Red-violet')
-        ]
-        self.__RGB_COLORS = [
-            Color(255, 0, 0, 'Red'),
-            Color(255, 128, 0, 'Orange'),
-            Color(255, 255, 0, 'Yellow'),
-            Color(128, 255, 0, 'Chartreuse'),
-            Color(0, 255, 0, 'Green'),
-            Color(0, 255, 128, 'Mint'),
-            Color(0, 255, 255, 'Cyan'),
-            Color(0, 128, 255, 'Azure'),
-            Color(0, 0, 255, 'Blue'),
-            Color(128, 0, 255, 'Purple'),
-            Color(255, 0, 255, 'Magenta'),
-            Color(255, 0, 128, 'Rose')
-        ]
-        self.__CMYK_COLORS = [
-            Color(0, 255, 255, 'Cyan'),
-            Color(0, 128, 255, 'Azure'),
-            Color(0, 0, 255, 'Blue'),
-            Color(128, 0, 255, 'Purple'),
-            Color(255, 0, 255, 'Magenta'),
-            Color(255, 0, 128, 'Rose'),
-            Color(255, 0, 0, 'Red'),
-            Color(255, 128, 0, 'Orange'),
-            Color(255, 255, 0, 'Yellow'),
-            Color(128, 255, 0, 'Chartreuse'),
-            Color(0, 255, 0, 'Green'),
-            Color(0, 255, 128, 'Mint')
-        ]
-        self.__color_wheels = {
-            'RYB': self.__RYB_COLORS,
-            'RGB': self.__RGB_COLORS,
-            'CMYK': self.__CMYK_COLORS
-        }
-        """
-        Color schemes are presented as arrays with each 12 hue in the color
-        wheel representing index values 0-11 with root color being value 0.
-        """
-        self.__COLOR_SCHEMES = {
-            'Analogous': [0, 1, 11],
-            'Complementary': [0, 6],
-            'Triadic': [0, 4, 8],
-            'Tetradic': [0, 2, 6, 8],
-            'Square': [0, 3, 6, 9],
-            'Split-complementary': [0, 5, 7],
-            'Double split-complementary': [0, 1, 5, 7, 11],
-            'Clash': [0, 2, 8],
-            'Intermediate': [0, 2, 4, 6, 8, 10]
-        }
-
-        if (
-                not isinstance(color_wheel, str)
-                or color_wheel.upper() not in self.__color_wheels
-        ):
-            show_error(f'Value {color_wheel} is not a valid color wheel!')
-            return
-
-        self.__color_palette = self.__color_wheels[color_wheel.upper()]
-        self.__color_wheel = color_wheel.upper()
-        self.__color_scheme = list(self.__COLOR_SCHEMES.keys())[0]
-        self.__picked_color = self.__color_palette[0]
-
-    def values(self):
-        """
-        Gets all the colors currently in the palette as an array.
-
-        :return: list, the colors in the palette.
-        """
-
-        return self.__color_palette
-
-    def get(self, index):
-        """
-        Fetches a color from the palette based on index value.
-
-        :param index: int, the index of the color to fetch.
-        :return: Color, the color at the specified index.
-        """
-
-        if (
-                not isinstance(index, int)
-                or 0 > index >= len(self.__color_palette)
-        ):
-            show_error('Tried getting an index that\'s not in the palette!')
-            return
-
-        return self.__color_palette[index]
-
-    def find_by_name(self, name):
-        """
-        Fetches a color from the palette by name.
-
-        :name: str, the name of the color to search for.
-        :return: Color, the color with the searched name.
-        """
-
-        for color_in_palette in self.values():
-            if name == color_in_palette.name():
-                return color_in_palette
-
-        show_error('The searched color couldn\'t be found!')
-        return
-
-    def get_color_wheel(self):
-        """
-        Fetches the color wheel of the palette.
-
-        :return: str, the color wheel value of the palette.
-        """
-
-        return self.__color_wheel
-
-    def get_color_scheme(self):
-        """
-        Fetches the color scheme of the palette.
-
-        :return: str, the color scheme value of the palette.
-        """
-
-        return self.__color_scheme
-
-    def get_picked_color(self):
-        """
-        Fetches the color that is set as the picked color in the palette.
-
-        :return: Color, the color currently picked.
-        """
-
-        return self.__picked_color
-
-    def random_color(self):
-        """
-        Fetches a random color from the current palette.
-
-        :return: Color, the randomly picked color.
-        """
-
-        return self.__color_palette[
-            random.randint(0, len(self.__color_palette) - 1)]
-
-    def set_color_wheel(self, color_wheel_key):
-        """
-        Sets the colors of the palette according to provided color wheel key.
-
-        :param color_wheel_key: str, the color wheel to set.
-        :return: Palette, the palette with set color wheel.
-        """
-
-        if (
-                not isinstance(color_wheel_key, str)
-                or color_wheel_key not in self.__color_wheels
-        ):
-            show_error(f'Invalid color wheel key {color_wheel_key} provided!')
-            return
-
-        self.__color_palette = self.__color_wheels[color_wheel_key]
-        self.__color_wheel = color_wheel_key
-
-        return self
-
-    def set_color_scheme(self, color_scheme_key):
-        """
-        Sets the color scheme for the palette according to provided color
-        scheme key.
-
-        :param color_scheme_key: str, the color scheme to set.
-        :return: Palette, the palette with set color scheme.
-        """
-
-        if (
-                not isinstance(color_scheme_key, str)
-                or color_scheme_key not in self.__COLOR_SCHEMES
-        ):
-            show_error(f'Invalid color scheme {color_scheme_key} provided!')
-            return
-
-        self.__color_scheme = color_scheme_key
-
-        return self
-
-    def set_picked_color(self, picked_color):
-        """
-        Sets the provided color as the picked color in the palette.
-
-        :return: Palette, the palette with currently picked color.
-        """
-
-        if (
-                # Note! Remove comment from line below when classes are split
-                # to separate files
-                # not isinstance(picked_color, Color) or
-                picked_color not in self.__color_palette
-        ):
-            show_error('Tried to set invalid picked color!')
-            return
-
-        self.__picked_color = picked_color
-
-        return self
-
-    def sort_color_wheel(self, first_color):
-        """
-        Organizes the palette to color wheel order according to provided root
-        color.
-
-        :param first_color: Color, the root color to be arranged as first.
-        :return: Palette, the sorted palette.
-        """
-
-        if (
-                # Note! Remove comment from line below when splitting class to
-                # separate file
-                # not isinstance(first_color, Color) or
-                first_color not in self.__color_palette
-        ):
-            show_error('Invalid color to sort by provided!')
-            return
-
-        self.__color_palette = \
-            self.__color_palette[self.__color_palette.index(first_color):] + \
-            self.__color_palette[:self.__color_palette.index(first_color)]
-
-        return self
-
-    def get_scheme_colors(self):
-        """
-        Fetches colors from the polette that are included in the current color
-        scheme.
-
-        :return: list, the colors in the current color scheme.
-        """
-
-        color_scheme_colors = []
-        for idx in self.__COLOR_SCHEMES[self.__color_scheme]:
-            color_scheme_colors.append(self.__color_palette[idx])
-
-        return color_scheme_colors
-
-    def to_tint(self, tint_percentage):
-        """
-        Tints (lighten) the palette colors according to provided tint amount.
-
-        :param tint_percentage: int, the percentage of tint to apply.
-        :return: Palette, the tinted color palette.
-        """
-
-        if (
-                not isinstance(tint_percentage, int)
-                or 0 > tint_percentage > 100
-        ):
-            show_error('Invalid tint percentage received!')
-            return
-
-        for color in self.values():
-            color.tint(tint_percentage)
-
-        return self
-
-    def to_shade(self, shade_percentage):
-        """
-        Shades (darken) the palette colors according to provided shade amount.
-
-        :param shade_percentage: int, the percentage of shade to apply.
-        :return: Palette, the shaded color palette.
-        """
-
-        if (
-                not isinstance(shade_percentage, int)
-                or 0 > shade_percentage > 100
-        ):
-            show_error('Invalid shade percentage received!')
-            return
-
-        for color in self.values():
-            color.shade(shade_percentage)
-
-        return self
-
-    def to_tone(self, tone_percentage):
-        """
-        Tones (saturate) the palette colors according to provided tone amount.
-
-        :param tone_percentage: int, the percentage of tone to apply.
-        :return: Palette, the toned color palette.
-        """
-
-        if (
-                not isinstance(tone_percentage, int)
-                or 0 > tone_percentage > 100
-        ):
-            show_error('Invalid tone percentage received!')
-            return
-
-        for color in self.values():
-            color.tone(tone_percentage)
-
-        return self
-
-
-class ColorPaletterUI:
+class ColorianUI:
 
     def __init__(self):
         """
@@ -733,7 +168,7 @@ class ColorPaletterUI:
         )
         self.__color_wheel_combobox.bind('<<ComboboxSelected>>',
                                          self.set_color_wheel)
-        self.__color_wheel_combobox.grid(row=0, column=0)
+        self.__color_wheel_combobox.grid(row=0, column=0, padx=(20, 10))
 
         # Initialize Color picker
         self.__color_picker_frame = ttk.Frame(self.__main_window)
@@ -747,7 +182,7 @@ class ColorPaletterUI:
             bg=self.__default_ui_frame_color,
             height=400,
             highlightbackground=self.__default_ui_frame_color,
-            width=400)
+            width=480)
         self.__pie_canvas.grid(row=1, column=0, columnspan=7)
 
         # Initialize Color scheme panel
@@ -795,12 +230,12 @@ class ColorPaletterUI:
 
         self.__color_scheme_combobox.bind('<<ComboboxSelected>>',
                                           self.set_color_scheme)
-        self.__color_scheme_combobox.grid(row=1, column=0, pady=(0, 10))
+        self.__color_scheme_combobox.grid(row=1, column=0, pady=(0, 5))
 
         # Initialize Hue brightness slider and preview panel
         self.__hue_brightness_label = ttk.Label(
             self.__color_scheme_settings_frame, text='Brightness')
-        self.__hue_brightness_label.grid(row=2, column=0, pady=(5, 2))
+        self.__hue_brightness_label.grid(row=2, column=0, pady=(2, 2))
 
         self.__hue_brightness_value = tk.DoubleVar(
             self.__main_window, random_color.get_brightness())
@@ -821,7 +256,6 @@ class ColorPaletterUI:
         self.__hue_preview_frame = tk.Frame(
             self.__color_scheme_settings_frame,
             background=random_color.hex(),
-            borderwidth=2,
             height=140,
             width=270)
 
@@ -830,10 +264,14 @@ class ColorPaletterUI:
         # Initialize Palette view
         self.__palette_view_frame = ttk.Frame(self.__main_window)
         self.__palette_view_frame.grid(row=2, column=0, columnspan=7)
+        self.__palette_view_frame.grid_propagate(0)
+        self.__palette_view_swatches_frame = ttk.Frame(
+            self.__palette_view_frame, height=80, width=480)
+        self.__palette_view_swatches_frame.pack()
 
         # Initialize Message display and Palette export to file button
         self.__palette_export_frame = ttk.Frame(self.__main_window)
-        self.__palette_export_frame.grid(row=2, column=7, columnspan=6)
+        self.__palette_export_frame.grid(row=2, column=8, columnspan=6)
 
         self.__palette_display_label = ttk.Label(
             self.__palette_export_frame)
@@ -846,11 +284,11 @@ class ColorPaletterUI:
             image=self.__save_icon_image,
             state='readonly',
             text='Export to file',
-            padding=(0, 5, 25, 5),
+            padding=(0, 10, 25, 10),
             width=12)
 
-        self.__palette_export_button.grid(row=1, column=0, padx=(100, 0),
-                                          pady=(0, 10))
+        self.__palette_export_button.grid(row=1, column=0, sticky=tk.NE,
+                                          padx=(53, 0), pady=(0, 20))
 
         # Start UI graphics and event loop
         self.update_all_color_previews()
@@ -914,47 +352,56 @@ class ColorPaletterUI:
                 self.__color_picker_palette \
                     .set_picked_color(color_value)
 
-                picked_color_wheel = self.__color_picker_palette\
+                picked_color_wheel_key = self.__color_picker_palette\
                     .get_color_wheel()
+                color_scheme_key = self.__color_scheme_value.get()
 
                 self.__color_wheel_hue_palette = Palette()
                 self.__color_wheel_hue_palette\
-                    .set_color_wheel(picked_color_wheel)
+                    .set_color_wheel(picked_color_wheel_key)
                 root_color = self.__color_wheel_hue_palette \
                     .find_by_name(color_value.name())
                 self.__color_wheel_hue_palette.set_picked_color(root_color)
                 self.__color_wheel_hue_palette \
                     .sort_color_wheel(root_color)
+                self.__color_wheel_hue_palette.set_color_scheme(
+                    color_scheme_key)
 
                 self.__color_wheel_tint_palette = Palette()
                 self.__color_wheel_tint_palette \
-                    .set_color_wheel(picked_color_wheel)
+                    .set_color_wheel(picked_color_wheel_key)
                 root_color = self.__color_wheel_tint_palette \
                     .find_by_name(color_value.name())
                 self.__color_wheel_tint_palette.set_picked_color(root_color)
                 self.__color_wheel_tint_palette \
                     .sort_color_wheel(root_color)
                 self.__color_wheel_tint_palette.to_tint(25)
+                self.__color_wheel_tint_palette.set_color_scheme(
+                    color_scheme_key)
 
                 self.__color_wheel_shade_palette = Palette()
                 self.__color_wheel_shade_palette \
-                    .set_color_wheel(picked_color_wheel)
+                    .set_color_wheel(picked_color_wheel_key)
                 root_color = self.__color_wheel_shade_palette \
                     .find_by_name(color_value.name())
                 self.__color_wheel_shade_palette.set_picked_color(root_color)
                 self.__color_wheel_shade_palette \
                     .sort_color_wheel(root_color)
                 self.__color_wheel_shade_palette.to_shade(25)
+                self.__color_wheel_shade_palette.set_color_scheme(
+                    color_scheme_key)
 
                 self.__color_wheel_tone_palette = Palette()
                 self.__color_wheel_tone_palette \
-                    .set_color_wheel(picked_color_wheel)
+                    .set_color_wheel(picked_color_wheel_key)
                 root_color = self.__color_wheel_tone_palette \
                     .find_by_name(color_value.name())
                 self.__color_wheel_tone_palette.set_picked_color(root_color)
                 self.__color_wheel_tone_palette \
                     .sort_color_wheel(root_color)
                 self.__color_wheel_tone_palette.to_tone(10)
+                self.__color_wheel_tone_palette.set_color_scheme(
+                    color_scheme_key)
 
                 color_scheme = \
                     self.__selected_color_wheel_palette.get_color_scheme()
@@ -1004,7 +451,8 @@ class ColorPaletterUI:
         color_slices = self.__selected_color_wheel_palette.values()
         scheme_color_slices = \
             self.__selected_color_wheel_palette.get_scheme_colors()
-        slice_degrees = 360.0 / len(color_slices)
+        extend_degrees = 360.0 / len(color_slices)
+        start_degrees = extend_degrees * 2.5
 
         for idx, color in enumerate(color_slices):
 
@@ -1014,26 +462,27 @@ class ColorPaletterUI:
                 self.update_hue_brightness_slider()
                 self.update_all_color_previews()
 
-            angle = slice_degrees * idx + 76.0
+            start_angle = extend_degrees * idx + start_degrees
             tag_id = f'slice-{idx}'
 
-            self.__pie_canvas.create_arc(10, 10, 400, 400,
-                                         extent=slice_degrees,
+            self.__pie_canvas.create_arc((50, 10, 440, 400),
+                                         extent=extend_degrees,
                                          fill=color.hex(),
                                          outline=color.hex(),
-                                         start=angle,
+                                         start=start_angle,
                                          tags=(tag_id,))
 
             self.__pie_canvas.tag_bind(tag_id, '<1>', select_hue)
 
-            if color in scheme_color_slices:
-                tag_id = f'slice-selected-{idx}'
+        for idx, color in enumerate(color_slices):
 
-                self.__pie_canvas.create_arc(10, 10, 400, 400,
-                                             extent=slice_degrees,
+            start_angle = extend_degrees * idx + start_degrees
+
+            if color in scheme_color_slices:
+                self.__pie_canvas.create_arc((50, 10, 440, 400),
+                                             extent=extend_degrees,
                                              outline='black',
-                                             start=angle,
-                                             tags=(tag_id,),
+                                             start=start_angle,
                                              width=3)
 
     def update_all_color_previews(self):
@@ -1130,15 +579,16 @@ class ColorPaletterUI:
         color code feature for the buttons.
         """
 
-        for widget in self.__palette_view_frame.winfo_children():
+        for widget in self.__palette_view_swatches_frame.winfo_children():
             widget.destroy()
 
         for idx, color in enumerate(
                 self.__selected_color_wheel_palette.get_scheme_colors()
         ):
-            palette_swatch_frame = ttk.Frame(self.__palette_view_frame,
-                                             height=80,
-                                             width=80)
+            palette_swatch_frame = ttk.Frame(
+                self.__palette_view_swatches_frame,
+                height=80,
+                width=80)
 
             palette_swatch_frame.rowconfigure(0, weight=1)
             palette_swatch_frame.columnconfigure(0, weight=1)
@@ -1205,24 +655,3 @@ class ColorPaletterUI:
             return
 
         self.display_message('Palette exported!')
-
-
-def show_error(error_message):
-    """
-    Display an error message in a new popup window.
-
-    :param error_message: str, the message to display.
-    """
-
-    if not isinstance(error_message, str):
-        return
-
-    messagebox.showerror('Colorian', error_message)
-
-
-def main():
-    ColorPaletterUI()
-
-
-if __name__ == '__main__':
-    main()

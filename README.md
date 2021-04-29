@@ -22,7 +22,7 @@ Complementary etc.) to generate a main palette below the color wheel. The main
 palette colors can be clicked to automatically copy the hex color code to
 clipboard for quick adding to visual design applications and code.
 
-5. A color's brightness can be fine tuned by clicking the color in the color
+5. A color's brightness can be fine-tuned by clicking the color in the color
 wheel and adjusting it with the slider on the right. A preview below the slider
 shows the modified color.
 
