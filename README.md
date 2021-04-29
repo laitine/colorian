@@ -5,7 +5,9 @@ Colorian is a color palette creator that makes creating colors that look
 balanced together easy. The created palettes can be exported to file for easy
 use in design projects.
 
-Get started:
+## Get started:
+
+[Download Colorian app for Mac](./dist/Colorian.app)
 
 1. Choose a color wheel from the top left corner according to your inteded use
 of colors (RYB for web, RGB for screens or CMYK for print).
@@ -32,8 +34,18 @@ corner. The exported file includes the colors in the selected palette and the
 color wheel with default names and color hex codes.
 
 
-Icons by Setyo Ari Wibowo from the Noun Project (Creative Commons license):
-https://thenounproject.com/seochan.art/collection/communication-thick
+Icons by Setyo Ari Wibowo from [the Noun Project](https://thenounproject.com/seochan.art/collection/communication-thick)
 
-Credits for color saturation calculation to Hugh Haworth:
-https://css-tricks.com/using-javascript-to-adjust-saturation-and-brightness-of-rgb-colors/
+Credits for color saturation calculation to [Hugh Haworth](https://css-tricks.com/using-javascript-to-adjust-saturation-and-brightness-of-rgb-colors)
+
+## Build
+
+The application is bundled using [PyInstaller](http://www.pyinstaller.org)
+
+To bundle for distribution run:
+```commandline
+sudo pyinstaller --clean --onefile --name Colorian --windowed --icon app_icon.icns --osx-bundle-identifier com.laitine.io.colorian --add-data "noun_copy_964433.png:." --add-data "noun_sticker_964404.png:." main.py
+```
+```commandline
+sudo pyinstaller Colorian.spec
+```

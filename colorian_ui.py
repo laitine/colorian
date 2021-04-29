@@ -2,7 +2,7 @@ from datetime import datetime
 import tkinter as tk
 from tkinter import ttk
 
-from main import show_error
+from main import show_error, resource_path
 from palette import Palette
 
 
@@ -149,10 +149,12 @@ class ColorianUI:
         self.__main_window.title('Colorian')
         self.__main_window.configure(bg=self.__default_ui_frame_color)
 
-        self.__copy_icon_image = tk.PhotoImage(master=self.__main_window,
-                                               file='noun_copy_964433.png')
-        self.__save_icon_image = tk.PhotoImage(master=self.__main_window,
-                                               file='noun_sticker_964404.png')
+        self.__copy_icon_image = tk.PhotoImage(
+            master=self.__main_window,
+            file=resource_path('noun_copy_964433.png'))
+        self.__save_icon_image = tk.PhotoImage(
+            master=self.__main_window,
+            file=resource_path('noun_sticker_964404.png'))
 
         # Initialize Color wheel dropdown
         color_wheels_list = list(self.__color_wheels.keys())
@@ -352,12 +354,12 @@ class ColorianUI:
                 self.__color_picker_palette \
                     .set_picked_color(color_value)
 
-                picked_color_wheel_key = self.__color_picker_palette\
+                picked_color_wheel_key = self.__color_picker_palette \
                     .get_color_wheel()
                 color_scheme_key = self.__color_scheme_value.get()
 
                 self.__color_wheel_hue_palette = Palette()
-                self.__color_wheel_hue_palette\
+                self.__color_wheel_hue_palette \
                     .set_color_wheel(picked_color_wheel_key)
                 root_color = self.__color_wheel_hue_palette \
                     .find_by_name(color_value.name())
@@ -455,7 +457,6 @@ class ColorianUI:
         start_degrees = extend_degrees * 2.5
 
         for idx, color in enumerate(color_slices):
-
             def select_hue(event, selected_hue=color):
                 self.__selected_color_wheel_palette \
                     .set_picked_color(selected_hue)

@@ -1,3 +1,5 @@
+import os
+import sys
 from tkinter import messagebox
 
 import colorian_ui
@@ -14,6 +16,15 @@ def show_error(error_message):
         return
 
     messagebox.showerror('Colorian', error_message)
+
+
+def resource_path(relative_path):
+    """
+    Fetch the absolute path to the resource. For both local and PyInstaller.
+    """
+    base_path = getattr(sys, '_MEIPASS',
+                        os.path.dirname(os.path.abspath(__file__)))
+    return os.path.join(base_path, relative_path)
 
 
 def main():
