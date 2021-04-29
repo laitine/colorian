@@ -77,8 +77,6 @@ class Color:
 
         return minmidmax_rgb_values
 
-
-
     def get_lightness(self):
         """
         Determines the lightness of the color as a ratio between white and

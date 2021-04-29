@@ -1,6 +1,7 @@
 from datetime import datetime
 import tkinter as tk
 from tkinter import ttk
+from tkinter.filedialog import asksaveasfile
 
 from main import show_error, resource_path
 from palette import Palette
@@ -626,15 +627,20 @@ class ColorianUI:
 
     def export_palette_to_file(self):
         """
-        Creates a file and converts the current palette to a string
-        representation to write it to the file.
+        Prompts for location to save the file. Creates a file and converts the
+        current palette to a string representation to write it to the file.
         """
 
-        date_and_time = str(datetime.now()).split('.')[0]
-        filename = f'Palette {date_and_time}.txt'
-
         try:
-            file = open(filename, mode='w')
+            date_and_time = str(datetime.now()).split(':')
+            filename = f'Palette {date_and_time[0]}.{date_and_time[1]}.txt'
+
+            file = asksaveasfile(mode='w',
+                                 defaultextension='.txt',
+                                 initialfile=filename)
+            if file is None:
+                return
+
             content = 'Colorian Palette\n' + \
                       '================\n\n'
 

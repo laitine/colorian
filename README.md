@@ -25,8 +25,8 @@ The main palette colors can be clicked to automatically copy the hex color code
 to clipboard for quick adding to visual design applications and code.
 
 5. A color's brightness can be fine-tuned by clicking a color in the color
-wheel and adjusting it with the slider on the lower right. A preview panel below the
-slider shows the modified color.
+wheel and adjusting it with the slider on the lower right. A preview panel
+below the slider shows the modified color.
 
 6. Once a palette or the whole color wheel is tweaked to perfection it can be
 exported to file by clicking the Export to file -button in the bottom right
