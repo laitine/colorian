@@ -6,7 +6,7 @@ class Color:
     def __init__(self, red, green, blue, name=None):
         """
         Creates a Color instance that represents a single RGB color. The
-        original color values and brightness are stored to allow referencing
+        initial color values and brightness are stored to allow referencing
         when modifying the color values.
 
         :param red: int, the amount of red on a scale 0-255.
@@ -29,14 +29,14 @@ class Color:
         """
         Converts the Color instance to a string.
 
-        :return: str, the Color instance.
+        :return: str, the Color instance as a string.
         """
 
         return f'{self.__name}: {self.hex()}'
 
     def hex(self):
         """
-        Converts a color from RGB to a HEX color code string.
+        Converts a color from RGB to a hex color code.
 
         :return: str, the color as hex color code.
         """
@@ -54,7 +54,7 @@ class Color:
 
     def values(self):
         """
-        Separates the RGB values into an array.
+        Separates the Red, Green and Blue values into an array.
 
         :return: array, the red, green and blue values in an array.
         """
@@ -68,21 +68,23 @@ class Color:
         :return: tuple, the RGB values in ascending order.
         """
 
-        rgb_array = self.values()
-        min_value = sorted(rgb_array)[0]
-        mid_value = sorted(rgb_array)[1]
-        max_value = sorted(rgb_array)[2]
+        rgb_array = sorted(self.values())
+        min_value = rgb_array[0]
+        mid_value = rgb_array[1]
+        max_value = rgb_array[2]
 
         minmidmax_rgb_values = (min_value, mid_value, max_value)
 
         return minmidmax_rgb_values
 
+
+
     def get_lightness(self):
         """
-        Determines the lightness of the color as in ratio of white and black
-        of the color. Value 0 represents pure black and 1 pure white.
+        Determines the lightness of the color as a ratio between white and
+        black. Value 0 represents pure black and 1 pure white.
 
-        :return: float, the lightness of the color as value between 0-1.
+        :return: float, the lightness of the color as value between 0.0-1.0.
         """
 
         rgb_minmidmax_values = self.get_minmidmax()
@@ -90,17 +92,6 @@ class Color:
         highest_rgb_value = rgb_minmidmax_values[2]
 
         return (lowest_rgb_value + highest_rgb_value) / 2 / 255
-
-    def get_brightness(self):
-        """
-        Calculates the relative luminance of the color.
-        https://en.wikipedia.org/wiki/Relative_luminance
-
-        :return: float, the brightness of the color.
-        """
-        return (
-            0.2126 * self.__red + 0.7152 * self.__green + 0.0722 * self.__blue
-        )
 
     def clamp_rgb_value(self, rgb_value):
         """
@@ -124,6 +115,18 @@ class Color:
             return 255
         else:
             return round(rgb_value)
+
+    def get_brightness(self):
+        """
+        Calculates the relative luminance of the color.
+        https://en.wikipedia.org/wiki/Relative_luminance
+
+        :return: float, the brightness of the color about 0.0-254.9.
+        """
+
+        return (
+            0.2126 * self.__red + 0.7152 * self.__green + 0.0722 * self.__blue
+        )
 
     def brightness(self, brightness_amount):
         """
@@ -165,6 +168,7 @@ class Color:
             return
 
         tint_fraction = tint_percentage / 100
+
         self.__red = self.clamp_rgb_value(self.__red + (255 - self.__red)
                                           * tint_fraction)
         self.__green = self.clamp_rgb_value(self.__green + (255 - self.__green)
@@ -190,6 +194,7 @@ class Color:
             return
 
         shade_fraction = shade_percentage / 100
+
         self.__red = self.clamp_rgb_value(self.__red * (1 - shade_fraction))
         self.__green = self.clamp_rgb_value(
             self.__green * (1 - shade_fraction))
@@ -201,7 +206,7 @@ class Color:
         """
         Modifies the saturation aka tone of the color as in adds gray to it.
 
-        :param tone_percentage: int, the percentage  of shading to apply.
+        :param tone_percentage: int, the percentage of toning to apply.
         :return: Color, the toned color.
         """
 
@@ -227,16 +232,19 @@ class Color:
         max_value = 0
         toned_rgb_values = [0] * 3
         rgb_values = self.values()
+
         for idx, rgb_value in enumerate(rgb_values):
             if rgb_value == minmidmax_rgb_values[0]:
                 toned_rgb_values[idx] = \
                     self.clamp_rgb_value(
                         minmidmax_rgb_values[0] - shift_amount)
+
             elif rgb_value == minmidmax_rgb_values[2]:
                 toned_rgb_values[idx] = \
                     self.clamp_rgb_value(
                         minmidmax_rgb_values[2] + shift_amount)
                 max_value = rgb_values[idx]
+
             elif rgb_value == minmidmax_rgb_values[1]:
                 toned_rgb_values[idx] = self.clamp_rgb_value(
                     gray_rgb_value + (max_value - gray_rgb_value) * mid_ratio)

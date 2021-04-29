@@ -9,6 +9,8 @@ class Palette:
     def __init__(self, color_wheel='RYB'):
         """
         Creates a Palette instance that represents a group of Color instances.
+        the palette has colors from a specific color wheel, a color scheme and
+        a picked color.
         """
 
         self.__RYB_COLORS = [
@@ -21,21 +23,21 @@ class Palette:
             Color(102, 176, 50, 'Green'),
             Color(52, 124, 152, 'Blue-green'),
             Color(2, 71, 254, 'Blue'),
-            Color(68, 36, 214, 'Blue-violet'),
-            Color(134, 1, 175, 'Violet'),
-            Color(194, 20, 96, 'Red-violet')
+            Color(68, 36, 214, 'Blue-purple'),
+            Color(134, 1, 175, 'Purple'),
+            Color(194, 20, 96, 'Red-purple')
         ]
         self.__RGB_COLORS = [
             Color(255, 0, 0, 'Red'),
             Color(255, 128, 0, 'Orange'),
             Color(255, 255, 0, 'Yellow'),
-            Color(128, 255, 0, 'Chartreuse'),
+            Color(128, 255, 0, 'Chartreuse Green'),
             Color(0, 255, 0, 'Green'),
-            Color(0, 255, 128, 'Mint'),
+            Color(0, 255, 128, 'Spring Green'),
             Color(0, 255, 255, 'Cyan'),
             Color(0, 128, 255, 'Azure'),
             Color(0, 0, 255, 'Blue'),
-            Color(128, 0, 255, 'Purple'),
+            Color(128, 0, 255, 'Violet'),
             Color(255, 0, 255, 'Magenta'),
             Color(255, 0, 128, 'Rose')
         ]
@@ -43,15 +45,15 @@ class Palette:
             Color(0, 255, 255, 'Cyan'),
             Color(0, 128, 255, 'Azure'),
             Color(0, 0, 255, 'Blue'),
-            Color(128, 0, 255, 'Purple'),
+            Color(128, 0, 255, 'Violet'),
             Color(255, 0, 255, 'Magenta'),
             Color(255, 0, 128, 'Rose'),
             Color(255, 0, 0, 'Red'),
             Color(255, 128, 0, 'Orange'),
             Color(255, 255, 0, 'Yellow'),
-            Color(128, 255, 0, 'Chartreuse'),
+            Color(128, 255, 0, 'Chartreuse Green'),
             Color(0, 255, 0, 'Green'),
-            Color(0, 255, 128, 'Mint')
+            Color(0, 255, 128, 'Spring Green')
         ]
         self.__color_wheels = {
             'RYB': self.__RYB_COLORS,
@@ -88,7 +90,7 @@ class Palette:
 
     def values(self):
         """
-        Gets all the colors currently in the palette as an array.
+        Fetches all the colors currently in the palette as a list.
 
         :return: list, the colors in the palette.
         """
@@ -120,6 +122,10 @@ class Palette:
         :return: Color, the color with the searched name.
         """
 
+        if not isinstance(name, str):
+            show_error('Invalid color name to search for received!')
+            return
+
         for color_in_palette in self.values():
             if name == color_in_palette.name():
                 return color_in_palette
@@ -129,7 +135,7 @@ class Palette:
 
     def get_color_wheel(self):
         """
-        Fetches the color wheel of the palette.
+        Fetches the color wheel key of the palette.
 
         :return: str, the color wheel value of the palette.
         """
@@ -138,7 +144,7 @@ class Palette:
 
     def get_color_scheme(self):
         """
-        Fetches the color scheme of the palette.
+        Fetches the color scheme key of the palette.
 
         :return: str, the color scheme value of the palette.
         """
@@ -156,13 +162,27 @@ class Palette:
 
     def random_color(self):
         """
-        Fetches a random color from the current palette.
+        Fetches a random color from the palette.
 
         :return: Color, the randomly picked color.
         """
 
         return self.__color_palette[
             random.randint(0, len(self.__color_palette) - 1)]
+
+    def get_scheme_colors(self):
+        """
+        Fetches colors from the palette that are included in the current color
+        scheme.
+
+        :return: list, the colors in the current color scheme.
+        """
+
+        color_scheme_colors = []
+        for idx in self.__COLOR_SCHEMES[self.__color_scheme]:
+            color_scheme_colors.append(self.__color_palette[idx])
+
+        return color_scheme_colors
 
     def set_color_wheel(self, color_wheel_key):
         """
@@ -176,7 +196,7 @@ class Palette:
                 not isinstance(color_wheel_key, str)
                 or color_wheel_key not in self.__color_wheels
         ):
-            show_error(f'Invalid color wheel key {color_wheel_key} provided!')
+            show_error(f'Invalid color wheel key provided!')
             return
 
         self.__color_palette = self.__color_wheels[color_wheel_key]
@@ -212,9 +232,7 @@ class Palette:
         """
 
         if (
-                # Note! Remove comment from line below when classes are split
-                # to separate files
-                # not isinstance(picked_color, Color) or
+                not isinstance(picked_color, Color) or
                 picked_color not in self.__color_palette
         ):
             show_error('Tried to set invalid picked color!')
@@ -226,7 +244,7 @@ class Palette:
 
     def sort_color_wheel(self, first_color):
         """
-        Organizes the palette to color wheel order according to provided root
+        Organizes the palette to color wheel order starting with provided root
         color.
 
         :param first_color: Color, the root color to be arranged as first.
@@ -234,9 +252,7 @@ class Palette:
         """
 
         if (
-                # Note! Remove comment from line below when splitting class to
-                # separate file
-                # not isinstance(first_color, Color) or
+                not isinstance(first_color, Color) or
                 first_color not in self.__color_palette
         ):
             show_error('Invalid color to sort by provided!')
@@ -248,23 +264,9 @@ class Palette:
 
         return self
 
-    def get_scheme_colors(self):
-        """
-        Fetches colors from the polette that are included in the current color
-        scheme.
-
-        :return: list, the colors in the current color scheme.
-        """
-
-        color_scheme_colors = []
-        for idx in self.__COLOR_SCHEMES[self.__color_scheme]:
-            color_scheme_colors.append(self.__color_palette[idx])
-
-        return color_scheme_colors
-
     def to_tint(self, tint_percentage):
         """
-        Tints (lighten) the palette colors according to provided tint amount.
+        Tints (lightens) the palette colors according to provided tint amount.
 
         :param tint_percentage: int, the percentage of tint to apply.
         :return: Palette, the tinted color palette.
@@ -284,7 +286,7 @@ class Palette:
 
     def to_shade(self, shade_percentage):
         """
-        Shades (darken) the palette colors according to provided shade amount.
+        Shades (darkens) the palette colors according to provided shade amount.
 
         :param shade_percentage: int, the percentage of shade to apply.
         :return: Palette, the shaded color palette.
@@ -304,7 +306,7 @@ class Palette:
 
     def to_tone(self, tone_percentage):
         """
-        Tones (saturate) the palette colors according to provided tone amount.
+        Tones (saturates) the palette colors according to provided tone amount.
 
         :param tone_percentage: int, the percentage of tone to apply.
         :return: Palette, the toned color palette.

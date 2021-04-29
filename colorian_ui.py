@@ -11,7 +11,7 @@ class ColorianUI:
     def __init__(self):
         """
         Creates Colorian UI initializing the color palettes and starts running
-        it in a new window.
+        in a new window.
         """
 
         self.__color_picker_palette = Palette()
@@ -133,6 +133,8 @@ class ColorianUI:
                     'background': self.__default_ui_frame_color,
                     'borderwidth': 10,
                     'groovewidth': 10,
+                    'darkcolor': 'red',
+                    'sliderwidth': 100,
                     'troughcolor': self.__default_ui_highlight_color,
                     'troughrelief': tk.SOLID
                 },
@@ -173,7 +175,9 @@ class ColorianUI:
         self.__color_wheel_combobox.grid(row=0, column=0, padx=(20, 10))
 
         # Initialize Color picker
-        self.__color_picker_frame = ttk.Frame(self.__main_window)
+        self.__color_picker_frame = ttk.Frame(self.__main_window,
+                                              height=50,
+                                              width=600)
         self.__color_picker_frame.grid(row=0, column=1, columnspan=12)
 
         self.update_color_picker()
@@ -253,6 +257,10 @@ class ColorianUI:
             to=hue_brightness_max_value,
             variable=self.__hue_brightness_value)
 
+        # Note! Only updates brightness to color wheel and palette view on
+        # mouseup event for better performance
+        self.__hue_brightness_scale.bind('<ButtonRelease-1>',
+                                         self.update_all_color_previews)
         self.__hue_brightness_scale.grid(row=3, column=0)
 
         self.__hue_preview_frame = tk.Frame(
@@ -401,7 +409,7 @@ class ColorianUI:
                 self.__color_wheel_tone_palette.set_picked_color(root_color)
                 self.__color_wheel_tone_palette \
                     .sort_color_wheel(root_color)
-                self.__color_wheel_tone_palette.to_tone(10)
+                self.__color_wheel_tone_palette.to_tone(50)
                 self.__color_wheel_tone_palette.set_color_scheme(
                     color_scheme_key)
 
@@ -457,6 +465,7 @@ class ColorianUI:
         start_degrees = extend_degrees * 2.5
 
         for idx, color in enumerate(color_slices):
+
             def select_hue(event, selected_hue=color):
                 self.__selected_color_wheel_palette \
                     .set_picked_color(selected_hue)
@@ -486,7 +495,7 @@ class ColorianUI:
                                              start=start_angle,
                                              width=3)
 
-    def update_all_color_previews(self):
+    def update_all_color_previews(self, event=None):
         """
         Aggregates all the functions to call when a color changes or gets
         modified and the UI widget states need to be updated.
@@ -540,17 +549,18 @@ class ColorianUI:
     def set_hue_brightness(self, event):
         """
         Modifies the selected color's brightness according to the fetched
-        slider's value.
+        slider's value. Updates hue brightness preview.
 
         :param event: tkinter.Event, the event triggered by user.
         """
 
+        hue_brightness_value = round(self.__hue_brightness_value.get(), 1)
+
         selected_hue_color = self.__selected_color_wheel_palette \
             .get_picked_color()
+        selected_hue_color.brightness(hue_brightness_value)
 
-        selected_hue_color.brightness(self.__hue_brightness_value.get())
-
-        self.update_all_color_previews()
+        self.update_hue_preview()
 
     def update_hue_brightness_slider(self):
         """
