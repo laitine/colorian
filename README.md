@@ -7,7 +7,7 @@ use in design projects.
 
 ## Get started:
 
-[Download Colorian app for Mac](./dist/Colorian.app)
+[Download Colorian app for Mac](https://github.com/laitine/colorian/tree/master/dist/Colorian.app)
 
 1. Choose a color wheel from the top left corner according to your inteded use
 of colors (RYB for web, RGB for screens or CMYK for print).
@@ -40,7 +40,7 @@ Credits for color saturation calculation to [Hugh Haworth](https://css-tricks.co
 
 ## Build
 
-The application is bundled using [PyInstaller](http://www.pyinstaller.org)
+The application is bundled using [PyInstaller](http://www.pyinstaller.org) on Mac.
 
 To bundle for distribution run:
 ```commandline
@@ -49,3 +49,5 @@ sudo pyinstaller --clean --onefile --name Colorian --windowed --icon app_icon.ic
 ```commandline
 sudo pyinstaller Colorian.spec
 ```
+
+The bundled app ready to run is in `dist/Colorian.app`.
