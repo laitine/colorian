@@ -5,6 +5,8 @@ Colorian is a color palette creator that makes finding colors that look
 balanced together easy. The created palettes can be copied to clipboard or
 exported to file for easy use in design projects.
 
+![Colorian palette creator](Header.png)
+
 ## Get started
 
 [Download Colorian app for Mac](https://github.com/laitine/colorian/releases/)
