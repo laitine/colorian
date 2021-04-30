@@ -42,12 +42,18 @@ Credits for color saturation calculation to [Hugh Haworth](https://css-tricks.co
 
 The application is bundled using [PyInstaller](http://www.pyinstaller.org) on Mac.
 
-To bundle for distribution run:
+### Bundle for distribution
+
+Note that sudo is only needed to edit the bundle's read-only files.
+
 ```commandline
 sudo pyinstaller --clean --onefile --name Colorian --windowed --icon app_icon.icns --osx-bundle-identifier com.laitine.io.colorian --add-data "noun_copy_964433.png:." --add-data "noun_sticker_964404.png:." main.py
 ```
 ```commandline
 sudo pyinstaller Colorian.spec
+```
+```commandline
+sudo python bump_version.py
 ```
 
 The bundled app ready to run is in `dist/Colorian.app`.
