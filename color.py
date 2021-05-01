@@ -1,3 +1,5 @@
+import colorsys
+
 from main import show_error
 
 
@@ -114,6 +116,29 @@ class Color:
         else:
             return round(rgb_value)
 
+    def clamp_fraction_value(self, color_value):
+        """
+        Clamps the provided fraction value to valid range 0.0-1.0. Converts the
+        value to a float if int is provided.
+
+        :param color_value: float, the value to clamp.
+        :return: float, the value in 0.0-1.0.
+        """
+
+        if (
+                not isinstance(color_value, float)
+                and not isinstance(color_value, int)
+        ):
+            show_error('Invalid fraction value to clamp received!')
+            return
+
+        if color_value < 0.0:
+            return 0.0
+        elif color_value > 1.0:
+            return 1.0
+        else:
+            return float(color_value)
+
     def get_brightness(self):
         """
         Calculates the relative luminance of the color.
@@ -128,8 +153,8 @@ class Color:
 
     def brightness(self, brightness_amount):
         """
-        Modify the luminance of the color in relation to the colors original
-        luminance amount. Maintains the colors original hue.
+        Modify the luminance aka brightness of the color in relation to the
+        colors original luminance amount. Maintains the colors original hue.
 
         :param brightness_amount: float, the amount of brightness 0.0-255.0
         """
@@ -215,37 +240,27 @@ class Color:
             show_error('Invalid tone parameter received!')
             return
 
-        minmidmax_rgb_values = self.get_minmidmax()
-        gray_rgb_value = self.get_lightness() * 255
+        tone_amount = tone_percentage / 100
 
-        saturation_range = round(min(255 - gray_rgb_value, gray_rgb_value))
-        max_shift = min((255 - minmidmax_rgb_values[2]),
-                        minmidmax_rgb_values[0])
-        shift_amount = min(saturation_range / tone_percentage, max_shift)
+        red_amount = self.__red / 255
+        green_amount = self.__green / 255
+        blue_amount = self.__blue / 255
 
-        mid_difference = gray_rgb_value - minmidmax_rgb_values[1]
-        max_difference = gray_rgb_value - minmidmax_rgb_values[2]
-        mid_ratio = mid_difference / max_difference
+        color_hsv = colorsys.rgb_to_hsv(red_amount, green_amount, blue_amount)
+        saturation_amount = self.clamp_fraction_value(
+            color_hsv[1] + (color_hsv[1] * tone_amount))
 
-        max_value = 0
-        toned_rgb_values = [0] * 3
-        rgb_values = self.values()
+        toned_color_hsv = (color_hsv[0], saturation_amount, color_hsv[2])
+        toned_rgb_color = colorsys.hsv_to_rgb(
+            toned_color_hsv[0],
+            toned_color_hsv[1],
+            toned_color_hsv[2])
 
-        for idx, rgb_value in enumerate(rgb_values):
-            if rgb_value == minmidmax_rgb_values[0]:
-                toned_rgb_values[idx] = \
-                    self.clamp_rgb_value(
-                        minmidmax_rgb_values[0] - shift_amount)
-
-            elif rgb_value == minmidmax_rgb_values[2]:
-                toned_rgb_values[idx] = \
-                    self.clamp_rgb_value(
-                        minmidmax_rgb_values[2] + shift_amount)
-                max_value = rgb_values[idx]
-
-            elif rgb_value == minmidmax_rgb_values[1]:
-                toned_rgb_values[idx] = self.clamp_rgb_value(
-                    gray_rgb_value + (max_value - gray_rgb_value) * mid_ratio)
+        toned_rgb_values = (
+            self.clamp_rgb_value(toned_rgb_color[0] * 255),
+            self.clamp_rgb_value(toned_rgb_color[1] * 255),
+            self.clamp_rgb_value(toned_rgb_color[2] * 255)
+        )
 
         self.__red = toned_rgb_values[0]
         self.__green = toned_rgb_values[1]

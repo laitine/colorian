@@ -38,8 +38,6 @@ color wheel with default names and color hex codes.
 
 Icons by Setyo Ari Wibowo from [the Noun Project](https://thenounproject.com/seochan.art/collection/communication-thick)
 
-Credits for color saturation calculation to [Hugh Haworth](https://css-tricks.com/using-javascript-to-adjust-saturation-and-brightness-of-rgb-colors)
-
 ## Build
 
 The application is bundled using [PyInstaller](http://www.pyinstaller.org) on Mac.

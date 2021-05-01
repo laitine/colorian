@@ -15,6 +15,10 @@ class ColorianUI:
         in a new window.
         """
 
+        self.__default_tint_amount = 25
+        self.__default_shade_amount = 25
+        self.__default_tone_amount = 90
+
         self.__color_picker_palette = Palette()
         random_color = self.__color_picker_palette.random_color()
         self.__color_picker_palette.set_picked_color(random_color)
@@ -24,17 +28,20 @@ class ColorianUI:
             random_color.name())
         self.__color_wheel_hue_palette.set_picked_color(picked_hue_color)
 
-        self.__color_wheel_tint_palette = Palette().to_tint(25)
+        self.__color_wheel_tint_palette = Palette().to_tint(
+            self.__default_tint_amount)
         picked_hue_color = self.__color_wheel_tint_palette.find_by_name(
             random_color.name())
         self.__color_wheel_tint_palette.set_picked_color(picked_hue_color)
 
-        self.__color_wheel_shade_palette = Palette().to_shade(25)
+        self.__color_wheel_shade_palette = Palette().to_shade(
+            self.__default_shade_amount)
         picked_hue_color = self.__color_wheel_shade_palette.find_by_name(
             random_color.name())
         self.__color_wheel_shade_palette.set_picked_color(picked_hue_color)
 
-        self.__color_wheel_tone_palette = Palette().to_tone(50)
+        self.__color_wheel_tone_palette = Palette().to_tone(
+            self.__default_tone_amount)
         picked_hue_color = self.__color_wheel_tone_palette.find_by_name(
             random_color.name())
         self.__color_wheel_tone_palette.set_picked_color(picked_hue_color)
@@ -386,7 +393,8 @@ class ColorianUI:
                 self.__color_wheel_tint_palette.set_picked_color(root_color)
                 self.__color_wheel_tint_palette \
                     .sort_color_wheel(root_color)
-                self.__color_wheel_tint_palette.to_tint(25)
+                self.__color_wheel_tint_palette.to_tint(
+                    self.__default_tint_amount)
                 self.__color_wheel_tint_palette.set_color_scheme(
                     color_scheme_key)
 
@@ -398,7 +406,8 @@ class ColorianUI:
                 self.__color_wheel_shade_palette.set_picked_color(root_color)
                 self.__color_wheel_shade_palette \
                     .sort_color_wheel(root_color)
-                self.__color_wheel_shade_palette.to_shade(25)
+                self.__color_wheel_shade_palette.to_shade(
+                    self.__default_shade_amount)
                 self.__color_wheel_shade_palette.set_color_scheme(
                     color_scheme_key)
 
@@ -410,7 +419,8 @@ class ColorianUI:
                 self.__color_wheel_tone_palette.set_picked_color(root_color)
                 self.__color_wheel_tone_palette \
                     .sort_color_wheel(root_color)
-                self.__color_wheel_tone_palette.to_tone(50)
+                self.__color_wheel_tone_palette.to_tone(
+                    self.__default_tone_amount)
                 self.__color_wheel_tone_palette.set_color_scheme(
                     color_scheme_key)
 
