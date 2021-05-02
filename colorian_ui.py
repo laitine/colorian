@@ -483,7 +483,7 @@ class ColorianUI:
                 self.update_hue_brightness_slider()
                 self.update_all_color_previews()
 
-            start_angle = extend_degrees * idx + start_degrees
+            start_angle = -extend_degrees * idx + start_degrees
             tag_id = f'slice-{idx}'
 
             self.__pie_canvas.create_arc((50, 10, 440, 400),
